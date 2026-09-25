@@ -1,0 +1,10 @@
+# Optional: Qdrant server for large corpora or to use the CLI while the UI runs.
+#   docker compose up -d qdrant   then set DOCCHAT_QDRANT_URL=http://localhost:6333
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.15.4
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./data/qdrant_server:/qdrant/storage
+    restart: unless-stopped
