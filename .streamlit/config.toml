@@ -1,0 +1,9 @@
+[server]
+maxUploadSize = 1024
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

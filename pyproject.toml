@@ -1,0 +1,103 @@
+[project]
+name = "docchat"
+version = "0.1.0"
+description = "Local, multi-agent, multi-format document chat (LangGraph + Ollama + Qdrant + Streamlit)"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "charset-normalizer>=3.5.1",
+    "duckdb>=1.5.5",
+    "fastembed>=0.8.1",
+    "langgraph>=1.2.12",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "markdown-it-py>=4.2.0",
+    "ollama>=0.6.2",
+    "onnxruntime>=1.30.0",
+    "openpyxl>=3.1.5",
+    "pandas>=3.0.6",
+    "pillow>=12.3.0",
+    "pyarrow>=25.0.1",
+    "pydantic-settings>=2.15.0",
+    "pymupdf>=1.28.2",
+    "python-calamine>=0.8.2",
+    "python-docx>=1.2.0",
+    "python-pptx>=1.0.2",
+    "qdrant-client>=1.19.1",
+    "rapidfuzz>=3.14.6",
+    "rapidocr>=3.9.2",
+    "sqlglot>=30.19.0",
+    "streamlit[pdf]>=1.64.0",
+    "torchvision>=0.26.0",
+]
+
+[project.optional-dependencies]
+# High-fidelity PDF parsing (MIT). Pulls PyTorch; add the `cuda` extra on a GPU machine.
+docling = ["docling>=2.60"]
+# Unstructured partitioning ("fast" works anywhere; "hi_res" needs poppler + tesseract on PATH).
+unstructured = ["unstructured[pdf]>=0.18"]
+# Tesseract OCR wrapper (needs tesseract.exe: `winget install UB-Mannheim.TesseractOCR`).
+tesseract = ["pytesseract>=0.3.13"]
+# PaddleOCR (CPU wheels).
+paddleocr = ["paddleocr>=3.2", "paddlepaddle>=3.1"]
+# Tree-sitter symbol extraction for non-Python code files.
+code = ["tree-sitter-language-pack>=0.9"]
+# Cross-encoder reranking on CUDA via sentence-transformers (e.g. BAAI/bge-reranker-v2-m3).
+rerank-gpu = ["sentence-transformers>=5.0"]
+# PyTorch build selection for the extras above: pick exactly one of cpu / cuda.
+cpu = ["torch>=2.8", "torchvision>=0.23"]
+cuda = ["torch>=2.8", "torchvision>=0.23"]
+
+[project.scripts]
+docchat = "docchat.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.4,<0.12"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501", "SIM108"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "ollama: needs a running Ollama server with the configured models pulled",
+]
+addopts = "-m 'not ollama'"
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.11.2",
+    "pytest>=9.1.1",
+    "pytest-timeout>=2.4.0",
+    "reportlab>=5.0.1",
+    "ruff>=0.16.9",
+]
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "cuda" }]]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cuda" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cuda" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+# CUDA 12.8 wheels: Turing (RTX 20) through Blackwell (RTX 50), NVIDIA driver >= 570.
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
