@@ -73,9 +73,17 @@ def render_about(settings: Settings) -> None:
         return
     report = json.loads(reports[-1].read_text(encoding="utf-8"))
     summary = report.get("summary", {})
-    cols = st.columns(min(len(summary), 5) or 1)
-    for i, (k, v) in enumerate(summary.items()):
+    metrics = [(k, v) for k, v in summary.items() if isinstance(v, (int, float))]
+    cols = st.columns(min(len(metrics), 5) or 1)
+    for i, (k, v) in enumerate(metrics):
         cols[i % len(cols)].metric(k.replace("_", " "), f"{v:.2f}" if isinstance(v, float) else v)
+    if summary.get("accuracy_by_type"):
+        st.markdown("Accuracy by question type")
+        st.dataframe(
+            pd.DataFrame(summary["accuracy_by_type"].items(), columns=["type", "accuracy"]),
+            hide_index=True,
+            width="stretch",
+        )
     if report.get("ablation"):
         st.markdown("Retrieval ablation")
         st.dataframe(pd.DataFrame(report["ablation"]), hide_index=True, width="stretch")
