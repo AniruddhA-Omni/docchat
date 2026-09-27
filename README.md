@@ -42,7 +42,7 @@ graph LR
 ```
 
 Stack: **LangGraph** (fan-out with `Send`, deferred fan-in, SQLite checkpointer) 路 **Ollama**
-(`qwen3.5:4b` default, `gemma4` switchable; one multimodal model serves chat and vision) 路
+(`qwen3.5:0.8b` default, `gemma4:e4b` switchable; one multimodal model serves chat and vision) 路
 **BGE-M3** embeddings 路 **Qdrant** (embedded or server) 路 **FastEmbed** `bge-reranker-base`
 (or `bge-reranker-v2-m3` on GPU) 路 **PyMuPDF** (default), **Docling**, **Marker**, **Unstructured**
 parsers 路 **RapidOCR**, **Tesseract**, **PaddleOCR** 路 **DuckDB + sqlglot** 路 **Streamlit**.
@@ -53,7 +53,7 @@ Prerequisites: [uv](https://docs.astral.sh/uv/), [Ollama](https://ollama.com) 鈮
 Microsoft Visual C++ runtime (`winget install Microsoft.VCRedist.2015+.x64`, usually present).
 
 ```bash
-ollama pull qwen3.5:4b          # or: ollama pull gemma4:e4b
+ollama pull qwen3.5:0.8b       # or: ollama pull gemma4:e4b
 ollama pull bge-m3
 uv sync                          # core install (CPU); no PyTorch
 uv run docchat prefetch          # once, online: reranker + OCR models -> ./models
@@ -68,7 +68,7 @@ uv run docchat                   # opens the app -> "Load demo corpus" -> ask
 uv sync --extra docling --extra rerank-gpu --extra code --extra cuda
 ```
 
-Then in `.env` (copy from `.env.example`): `DOCCHAT_LLM_MODEL=qwen3.5:9b` or `gemma4:12b`,
+Then in `.env` (copy from `.env.example`): `DOCCHAT_LLM_MODEL=qwen3.5:0.8b` or `gemma4:e4b`,
 `DOCCHAT_RERANKER_BACKEND=sentence-transformers`, `DOCCHAT_RERANKER_MODEL=BAAI/bge-reranker-v2-m3`,
 `DOCCHAT_PDF_PARSER=docling`, `DOCCHAT_NUM_CTX=32768`. Ollama server settings (Windows user
 environment variables, then restart Ollama from the tray): `OLLAMA_FLASH_ATTENTION=1`,
@@ -92,7 +92,7 @@ uv run docchat ingest demo_corpus/            # index files / folders
 uv run docchat ask "Which regions missed their FY2025 target?" "And by how much?"
 uv run docchat ask --mode deep --json "How many employees does Acme have?"
 uv run docchat eval                           # golden-set evaluation -> data/eval/report_*.json
-uv run docchat eval --judge gemma4:12b        # + LLM-as-judge with a different model
+uv run docchat eval --judge gemma4:e4b        # + LLM-as-judge with a different model
 uv run docchat graph                          # agent graph as Mermaid
 ```
 
@@ -128,7 +128,7 @@ isolation, such as text-to-SQL on the golden spreadsheet questions or the verifi
 contradiction.
 
 Options:
-- `DOCCHAT_TEST_MODELS="qwen3.5:4b,gemma4:e4b"` compares several models.
+- `DOCCHAT_TEST_MODELS="qwen3.5:0.8b,gemma4:e4b"` compares several models.
 - `DOCCHAT_TEST_GOLDEN=1` also runs the whole golden set with accuracy thresholds.
 
 ## Troubleshooting
